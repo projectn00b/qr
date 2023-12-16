@@ -1,6 +1,9 @@
 import os
 from PIL import Image
 import qrcode
+from flask import Flask, jsonify
+
+app = Flask(__name__)
 
 def generate_qr_code_with_image(url, image_path, output_path):
     if not os.path.exists(image_path):
@@ -36,5 +39,18 @@ def generate_qr_code_with_image(url, image_path, output_path):
     except Exception as e:
         print(f"An error occurred: {e}")
 
+@app.route("/generate_qr")
+def generate_qr():
+    url = "https://example.com"
+    image_path = "invite.png"
+    output_path = "output.jpg"
+
+    generate_qr_code_with_image(url, image_path, output_path)
+
+    return jsonify({"output_path": output_path})
+
+if __name__ == "__main__":
+    app.run()
+    
 # Example usage
 generate_qr_code_with_image("https://example.com", "invite.png", "output.jpg")
