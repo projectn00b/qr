@@ -3,19 +3,14 @@ from PIL import Image
 import qrcode
 from flask import Flask, jsonify, render_template, send_from_directory
 from flask_cors import CORS  # Import the CORS extension
+from datetime import datetime  # Import the datetime module
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for the entire app
 
-
 # Define a static folder to serve static files like favicon.ico
 app._static_folder = os.path.abspath("static")
-
-def generate_qr_code_with_image(url, image_path, output_path):
-    if not os.path.exists(image_path):
-        print(f"Error: The file '{image_path}' does not exist.")
-        return
-
+def generate_qr_code_with_image(url, image_path):
     try:
         # Generate QR code
         qr = qrcode.QRCode(
@@ -40,22 +35,31 @@ def generate_qr_code_with_image(url, image_path, output_path):
         # Blend the images
         blended_img = Image.blend(qr_img, overlay_img, alpha=0.5)
 
+        # Generate a timestamp-based file name
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        output_path = f"output_{timestamp}.jpg"
+
         # Save the result
         blended_img.save(output_path)
+
+        return output_path
     except Exception as e:
         print(f"An error occurred: {e}")
+        return None
 
 @app.route("/generate_qr")
 def generate_qr():
     url = "https://example.com"
     image_path = "invite.png"
-    output_path = "output.jpg"
 
-    generate_qr_code_with_image(url, image_path, output_path)
+    output_path = generate_qr_code_with_image(url, image_path)
 
-    # Return JSON data
-    return jsonify({"output_path": output_path})
-    
+    if output_path:
+        # Return JSON data
+        return jsonify({"output_path": output_path})
+    else:
+        return jsonify({"error": "An error occurred while generating the QR code."})
+
 @app.route("/")  # Route for serving the HTML file
 def index():
     return render_template("index.html")
@@ -66,8 +70,7 @@ def script():
 
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
-
+    return send_from_directory(app._static_folder, 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 if __name__ == "__main__":
-    app.run(debug=True)  # Enable debug mode for detailed error messages (for development)
+    app.run(debug=True)
