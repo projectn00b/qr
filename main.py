@@ -1,7 +1,7 @@
 import os
 from PIL import Image
 import qrcode
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 
 app = Flask(__name__)
 
@@ -49,8 +49,13 @@ def generate_qr():
 
     return jsonify({"output_path": output_path})
 
+@app.route("/")  # Route for serving the HTML file
+def index():
+    return render_template("index.html")
+
+@app.route("/script.js")  # Route for serving the JavaScript file
+def script():
+    return render_template("script.js")
+
 if __name__ == "__main__":
-    app.run()
-    
-# Example usage
-generate_qr_code_with_image("https://example.com", "invite.png", "output.jpg")
+    app.run(debug=True)  # Enable debug mode for detailed error messages (for development)
