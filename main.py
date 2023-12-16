@@ -1,10 +1,10 @@
-import os
+from flask import Flask, jsonify, render_template, send_from_directory, request
+from flask_cors import CORS
+from werkzeug.utils import secure_filename  # Import secure_filename
+from datetime import datetime
 from PIL import Image
 import qrcode
-from flask import Flask, jsonify, render_template, send_from_directory
-from flask_cors import CORS
-from datetime import datetime
-
+import os
 app = Flask(__name__)
 CORS(app)
 
@@ -50,31 +50,33 @@ def generate_qr_code_with_image(url, image_path):
     return None
 
 
-@app.route("/generate_qr")
-def generate_qr():
-  url = "https://example.com"
-  static_file_path = os.path.join(app._static_folder, "invite.png")
-  output_path = generate_qr_code_with_image(url, static_file_path)
-
-  if output_path:
-    return jsonify({"output_path": output_path})
-  else:
-    return jsonify(
-        {"error": "An error occurred while generating the QR code."})
 
 
 @app.route("/")
 def index():
-  static_file_path = os.path.join(app._static_folder, "invite.png")
-  image_path = generate_qr_code_with_image("https://example.com",
-                                           static_file_path)
-  return render_template("index.html", image_path=image_path)
+    return render_template("index.html")
 
 
 @app.route('/static/<path:filename>')
 def static_files(filename):
   return send_from_directory(app._static_folder, filename)
 
+@app.route('/upload_image', methods=['POST'])
+def upload_image():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"})
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"})
+
+    if file:
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app._static_folder, filename)
+        file.save(file_path)
+
+        qr_image = generate_qr_code_with_image("https://example.com", file_path)
+        return jsonify({"output_path": qr_image})
 
 if __name__ == "__main__":
   app.run(host="0.0.0.0", port=8080)

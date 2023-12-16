@@ -2,16 +2,48 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Generator</title>
 </head>
 <body>
     <h1>QR Code Generator</h1>
-    <!-- Display the invite.png image -->
-    <img src="{{ url_for('static', filename=image_path) }}" alt="Invite QR Code">
+    <button id="generate-btn">Generate QR Code</button>
+<form id="upload-form" enctype="multipart/form-data">
+    <input type="file" name="file" accept="image/*">
+    <input type="submit" value="Upload Image and Generate QR Code">
+</form>
+
+<div id="qr-code-container"></div>
+
+    <script>
     
-    <div id="status">Working...</div>
-    <img id="result" style="display: none;" src="">
-    <script src="script.js"></script>
+          document.getElementById('upload-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        let formData = new FormData(this);
+    
+fetch('/upload_image', {
+    method: 'POST',
+    body: formData
+})
+        .then(response => {
+    if (!response.ok) {
+        throw new Error('Server returned an error response');
+    }
+    return response.json();
+})
+.then(data => {
+    if (data.output_path) {
+        document.getElementById('qr-code-container').innerHTML =
+            `<img src="/static/${data.output_path}" alt="QR Code">`;
+    } else {
+        alert('Error generating QR code');
+    }
+})
+.catch(error => {
+    console.error('Error:', error);
+    // Handle non-JSON response or other fetch errors
+});
+});
+    </script>
 </body>
 </html>
