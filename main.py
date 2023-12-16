@@ -47,8 +47,9 @@ def generate_qr():
 
     generate_qr_code_with_image(url, image_path, output_path)
 
+    # Return JSON data
     return jsonify({"output_path": output_path})
-
+    
 @app.route("/")  # Route for serving the HTML file
 def index():
     return render_template("index.html")
@@ -56,6 +57,11 @@ def index():
 @app.route("/script.js")  # Route for serving the JavaScript file
 def script():
     return render_template("script.js")
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 
 if __name__ == "__main__":
     app.run(debug=True)  # Enable debug mode for detailed error messages (for development)
