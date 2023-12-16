@@ -61,10 +61,9 @@ def generate_qr():
 
 @app.route("/")  # Route for serving the HTML file
 def index():
-    # Pass the image path to the HTML template
-    image_path = "invite.png"
+    image_path = generate_qr_code_with_image("https://example.com", "invite.png")
     return render_template("index.html", image_path=image_path)
-
+    
 @app.route("/script.js")  # Route for serving the JavaScript file
 def script():
     return render_template("script.js")
