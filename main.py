@@ -1,9 +1,12 @@
 import os
 from PIL import Image
 import qrcode
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, send_from_directory
 
 app = Flask(__name__)
+
+# Define a static folder to serve static files like favicon.ico
+app._static_folder = os.path.abspath("static")
 
 def generate_qr_code_with_image(url, image_path, output_path):
     if not os.path.exists(image_path):
