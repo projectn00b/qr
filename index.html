@@ -6,6 +6,10 @@
     <title>QR Code Generator</title>
 </head>
 <body>
+    <h1>QR Code Generator</h1>
+    <!-- Display the invite.png image -->
+    <img src="{{ url_for('static', filename=image_path) }}" alt="Invite QR Code">
+    
     <div id="status">Working...</div>
     <img id="result" style="display: none;" src="">
     <script src="script.js"></script>
