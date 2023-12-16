@@ -2,8 +2,11 @@ import os
 from PIL import Image
 import qrcode
 from flask import Flask, jsonify, render_template, send_from_directory
+from flask_cors import CORS  # Import the CORS extension
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for the entire app
+
 
 # Define a static folder to serve static files like favicon.ico
 app._static_folder = os.path.abspath("static")
